@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: common
+  namespace: utility
+  labels:
+    app: common
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: common
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 33%
+  template:
+    metadata:
+      labels:
+        app: common
+    spec:
+      containers:
+        - name: common
+          image: 10.3.7.221:5000/common:<VERSION>
+          ports:
+            - containerPort: 5062
+          env:
+            - name: env
+              value: "dev"
+            - name: VAULT_TOKEN
+              value: "s.p97lqlxBZ61C6sx5aHAFB4Ya"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: common
+  namespace: utility
+  labels:
+    app: common
+spec:
+  ports:
+  - name: http
+    port: 5062
+    targetPort: 5062
+  selector:
+    app: common
+  type: LoadBalancer
